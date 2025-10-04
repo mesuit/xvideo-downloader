@@ -29,7 +29,7 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// Fetch video download info
+// Fetch video info
 app.get("/video", async (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: "No video URL provided" });
@@ -44,4 +44,23 @@ app.get("/video", async (req, res) => {
   }
 });
 
+// **Download endpoint**: streams video so browser can download
+app.get("/download", async (req, res) => {
+  const { url, title } = req.query;
+  if (!url || !title) return res.status(400).json({ error: "No URL or title provided" });
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch video");
+
+    res.setHeader("Content-Disposition", `attachment; filename="${title}.mp4"`);
+    res.setHeader("Content-Type", "video/mp4");
+    response.body.pipe(res); // stream video directly to user
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to download video" });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
