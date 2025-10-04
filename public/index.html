@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Makamesco X Video Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root { --highlight: #ff4081; }
+    body { margin:0; font-family:'JetBrains Mono', monospace; background:#000; color:#fff; padding:1rem; }
+    h1 { text-align:center; color: var(--highlight); margin-bottom:1rem; }
+    .search-container { display:flex; justify-content:center; margin-bottom:1rem; gap:5px; flex-wrap:wrap; }
+    .search-container input { padding:8px; border-radius:25px; border:none; outline:none; flex:1; min-width:200px; }
+    .search-container button { padding:8px 16px; border:none; border-radius:25px; background: var(--highlight); color:#000; cursor:pointer; font-weight:bold; }
+    #errorMsg { color:red; text-align:center; margin-bottom:1rem; }
+    #results { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+    .video-card { background:#111; border-radius:12px; padding:10px; width:200px; cursor:pointer; text-align:center; }
+    .video-card img.thumbnail { width:100%; border-radius:8px; }
+    .video-card .video-info { margin-top:5px; }
+    .video-card .title { font-weight:bold; font-size:0.9rem; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .video-card .details { font-size:0.8rem; color:#ccc; }
+    #videoPlayer { margin-top:20px; text-align:center; }
+    #videoPlayer video { max-width:100%; border-radius:12px; }
+  </style>
+</head>
+<body>
+
+<h1>Makamesco X Video Downloader</h1>
+
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="Enter video keywords...">
+  <button onclick="searchVideos()">Search</button>
+</div>
+
+<div id="errorMsg"></div>
+<div id="results"></div>
+<div id="videoPlayer"></div>
+
+<script>
+async function searchVideos() {
+  const query = document.getElementById('searchInput').value.trim();
+  const resultsDiv = document.getElementById('results');
+  const errorMsg = document.getElementById('errorMsg');
+  const videoPlayer = document.getElementById('videoPlayer');
+
+  resultsDiv.innerHTML = '';
+  errorMsg.textContent = '';
+  videoPlayer.innerHTML = '';
+
+  if (!query) {
+    errorMsg.textContent = '❌ Please enter a search keyword.';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+    const data = await response.json();
+
+    if (!data.success || !data.result || data.result.length === 0) {
+      throw new Error('No videos found for your query.');
+    }
+
+    data.result.forEach(video => {
+      const card = document.createElement('div');
+      card.className = 'video-card';
+      card.innerHTML = `
+        <img src="${video.thumbnail}" alt="${video.title}" class="thumbnail" />
+        <div class="video-info">
+          <div class="title" title="${video.title}">${video.title}</div>
+          <div class="details">Duration: ${video.duration} | Quality: ${video.quality}</div>
+        </div>
+      `;
+      card.onclick = () => fetchAndPlayVideo(video.url);
+      resultsDiv.appendChild(card);
+    });
+  } catch (error) {
+    errorMsg.textContent = '❌ ' + error.message;
+    console.error(error);
+  }
+}
+
+async function fetchAndPlayVideo(videoUrl) {
+  const videoPlayer = document.getElementById('videoPlayer');
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.textContent = '';
+  videoPlayer.innerHTML = '';
+
+  try {
+    const response = await fetch(`/video?url=${encodeURIComponent(videoUrl)}`);
+    const data = await response.json();
+
+    if (!data.success || !data.download_url) {
+      throw new Error('Failed to get download link.');
+    }
+
+    videoPlayer.innerHTML = `
+      <video controls autoplay>
+        <source src="${data.download_url}" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <p style="color: var(--highlight); margin-top: 0.5rem;">${data.title}</p>
+    `;
+
+    window.scrollTo({ top: videoPlayer.offsetTop, behavior: 'smooth' });
+  } catch (error) {
+    errorMsg.textContent = '❌ ' + error.message;
+    console.error(error);
+  }
+}
+</script>
+
+</body>
+</html>
