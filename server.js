@@ -44,18 +44,29 @@ app.get("/video", async (req, res) => {
   }
 });
 
-// **Download endpoint**: streams video so browser can download
+// **Download endpoint using external API**
 app.get("/download", async (req, res) => {
   const { url, title } = req.query;
   if (!url || !title) return res.status(400).json({ error: "No URL or title provided" });
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch video");
+    // Call the external API to get the direct download link
+    const apiResponse = await fetch(`https://apis-keith.vercel.app/download/porn?url=${encodeURIComponent(url)}`);
+    const data = await apiResponse.json();
+
+    if (!data || !data.result || !data.result.url) {
+      throw new Error("Failed to get download link from external API");
+    }
+
+    const downloadUrl = data.result.url;
+
+    // Stream the video to the user
+    const videoResponse = await fetch(downloadUrl);
+    if (!videoResponse.ok) throw new Error("Failed to fetch video from external URL");
 
     res.setHeader("Content-Disposition", `attachment; filename="${title}.mp4"`);
     res.setHeader("Content-Type", "video/mp4");
-    response.body.pipe(res); // stream video directly to user
+    videoResponse.body.pipe(res);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to download video" });
@@ -63,4 +74,3 @@ app.get("/download", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
