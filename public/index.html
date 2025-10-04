@@ -21,6 +21,16 @@
     .video-card .details { font-size:0.8rem; color:#ccc; }
     #videoPlayer { margin-top:20px; text-align:center; }
     #videoPlayer video { max-width:100%; border-radius:12px; }
+    #videoPlayer a.download-btn {
+      display:inline-block; 
+      margin-top:10px; 
+      padding:8px 12px; 
+      background:#ff4081; 
+      color:#000; 
+      border-radius:6px; 
+      font-weight:bold; 
+      text-decoration:none;
+    }
   </style>
 </head>
 <body>
@@ -70,7 +80,8 @@ async function searchVideos() {
           <div class="details">Duration: ${video.duration} | Quality: ${video.quality}</div>
         </div>
       `;
-      card.onclick = () => fetchAndPlayVideo(video.url);
+      // Pass both URL and title to allow download
+      card.onclick = () => fetchAndPlayVideo(video.url, video.title);
       resultsDiv.appendChild(card);
     });
   } catch (error) {
@@ -79,7 +90,7 @@ async function searchVideos() {
   }
 }
 
-async function fetchAndPlayVideo(videoUrl) {
+async function fetchAndPlayVideo(videoUrl, videoTitle) {
   const videoPlayer = document.getElementById('videoPlayer');
   const errorMsg = document.getElementById('errorMsg');
   errorMsg.textContent = '';
@@ -93,12 +104,15 @@ async function fetchAndPlayVideo(videoUrl) {
       throw new Error('Failed to get download link.');
     }
 
+    const downloadLink = `/download?url=${encodeURIComponent(data.download_url)}&title=${encodeURIComponent(data.title)}`;
+
     videoPlayer.innerHTML = `
       <video controls autoplay>
         <source src="${data.download_url}" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       <p style="color: var(--highlight); margin-top: 0.5rem;">${data.title}</p>
+      <a href="${downloadLink}" class="download-btn">⬇ Download Video</a>
     `;
 
     window.scrollTo({ top: videoPlayer.offsetTop, behavior: 'smooth' });
@@ -111,3 +125,4 @@ async function fetchAndPlayVideo(videoUrl) {
 
 </body>
 </html>
+
