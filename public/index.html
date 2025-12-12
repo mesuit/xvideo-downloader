@@ -3,126 +3,323 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Makamesco X Video Downloader</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <title>Makamesco Studio - Premium X Video Downloader</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    :root { --highlight: #ff4081; }
-    body { margin:0; font-family:'JetBrains Mono', monospace; background:#000; color:#fff; padding:1rem; }
-    h1 { text-align:center; color: var(--highlight); margin-bottom:1rem; }
-    .search-container { display:flex; justify-content:center; margin-bottom:1rem; gap:5px; flex-wrap:wrap; }
-    .search-container input { padding:8px; border-radius:25px; border:none; outline:none; flex:1; min-width:200px; }
-    .search-container button { padding:8px 16px; border:none; border-radius:25px; background: var(--highlight); color:#000; cursor:pointer; font-weight:bold; }
-    #errorMsg { color:red; text-align:center; margin-bottom:1rem; }
-    #results { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
-    .video-card { background:#111; border-radius:12px; padding:10px; width:200px; cursor:pointer; text-align:center; }
-    .video-card img.thumbnail { width:100%; border-radius:8px; }
-    .video-card .video-info { margin-top:5px; }
-    .video-card .title { font-weight:bold; font-size:0.9rem; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-    .video-card .details { font-size:0.8rem; color:#ccc; }
-    #videoPlayer { margin-top:20px; text-align:center; }
-    #videoPlayer video { max-width:100%; border-radius:12px; }
-    #videoPlayer a.download-btn {
-      display:inline-block; 
-      margin-top:10px; 
-      padding:8px 12px; 
-      background:#ff4081; 
-      color:#000; 
-      border-radius:6px; 
-      font-weight:bold; 
-      text-decoration:none;
+    :root {
+      --primary: #ff9900; /* PornHub Orange style */
+      --dark-bg: #121212;
+      --panel-bg: #1f1f1f;
+      --text-main: #ffffff;
+      --text-muted: #aaaaaa;
+      --sidebar-width: 240px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--dark-bg); color: var(--text-main); overflow-x: hidden; }
+
+    /* --- Header --- */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: #000; display: flex; align-items: center; padding: 0 20px; z-index: 100;
+      border-bottom: 2px solid var(--primary);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; color: #fff; text-decoration: none; margin-right: 40px; }
+    .logo span { background: var(--primary); color: #000; padding: 2px 5px; border-radius: 4px; margin-left: 2px; }
+    
+    .search-bar { flex: 1; display: flex; max-width: 600px; margin: 0 auto; }
+    .search-bar input {
+      width: 100%; padding: 10px 15px; border-radius: 2px 0 0 2px; border: none; outline: none; background: #333; color: #fff;
+    }
+    .search-bar button {
+      padding: 10px 20px; background: var(--primary); border: none; cursor: pointer; border-radius: 0 2px 2px 0; font-weight: bold;
+    }
+    .search-bar button:hover { opacity: 0.9; }
+
+    /* --- Layout --- */
+    .main-container { display: flex; margin-top: 60px; min-height: calc(100vh - 60px); }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      width: var(--sidebar-width); background: #000; flex-shrink: 0; padding: 20px 10px;
+      overflow-y: auto; height: calc(100vh - 60px); position: fixed; border-right: 1px solid #333;
+    }
+    .sidebar h3 { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-top: 0; padding-left: 10px; }
+    .cat-item {
+      display: block; padding: 10px; color: var(--text-main); text-decoration: none; border-radius: 4px; transition: 0.2s; cursor: pointer;
+    }
+    .cat-item:hover, .cat-item.active { background: #333; color: var(--primary); }
+    .cat-item i { width: 25px; color: var(--primary); }
+
+    /* --- Content Area --- */
+    .content { margin-left: var(--sidebar-width); flex: 1; padding: 20px; }
+    
+    .section-title { font-size: 1.5rem; margin-bottom: 20px; border-left: 5px solid var(--primary); padding-left: 15px; }
+
+    /* --- Video Grid --- */
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .video-card { background: var(--panel-bg); border-radius: 4px; overflow: hidden; transition: transform 0.2s; cursor: pointer; }
+    .video-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    
+    .thumb-wrapper { position: relative; padding-top: 56.25%; /* 16:9 Aspect Ratio */ }
+    .thumb-wrapper img {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .duration {
+      position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; padding: 2px 6px; font-size: 0.8rem; border-radius: 4px;
+    }
+
+    .info { padding: 10px; }
+    .title { font-weight: 500; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 5px; }
+    .meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
+    .quality { background: var(--primary); color: #000; padding: 1px 4px; border-radius: 3px; font-weight: bold; font-size: 0.7rem; }
+
+    /* --- Player Section (Hidden by default) --- */
+    #playerSection { display: none; flex-direction: row; gap: 20px; }
+    .main-player { flex: 2; }
+    .related-sidebar { flex: 1; max-width: 400px; }
+    
+    video { width: 100%; background: #000; border-radius: 4px; border: 1px solid #333; }
+    .player-info { margin-top: 15px; background: var(--panel-bg); padding: 15px; border-radius: 4px; }
+    .player-title { font-size: 1.4rem; color: var(--primary); margin: 0 0 10px 0; }
+    .action-btn {
+      display: inline-block; background: var(--primary); color: #000; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px; margin-top: 10px;
+    }
+    .action-btn:hover { opacity: 0.9; }
+
+    /* --- Compact Grid for Related --- */
+    .related-grid { display: flex; flex-direction: column; gap: 10px; }
+    .related-card { display: flex; gap: 10px; background: var(--panel-bg); padding: 5px; cursor: pointer; border-radius: 4px; }
+    .related-card:hover { background: #333; }
+    .related-thumb { width: 120px; height: 68px; flex-shrink: 0; position: relative; }
+    .related-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+    .related-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .related-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; max-height: 2.6em; overflow: hidden; }
+
+    /* --- Loading/Error --- */
+    #loading { display: none; text-align: center; padding: 40px; color: var(--primary); font-size: 1.2rem; }
+    #errorMsg { color: #ff4444; text-align: center; padding: 20px; }
+
+    /* --- Mobile Responsive --- */
+    @media (max-width: 768px) {
+      .sidebar { display: none; } /* Add toggle logic if needed, hiding for simplicity */
+      .content { margin-left: 0; }
+      #playerSection { flex-direction: column; }
+      .related-sidebar { max-width: 100%; }
+      .logo span { display: none; } /* Compact logo */
     }
   </style>
 </head>
 <body>
 
-<h1>Makamesco X Video Downloader</h1>
+<header>
+  <a href="#" class="logo" onclick="location.reload()">Makamesco<span>Studio</span></a>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search videos...">
+    <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+  </div>
+</header>
 
-<div class="search-container">
-  <input type="text" id="searchInput" placeholder="Enter video keywords...">
-  <button onclick="searchVideos()">Search</button>
+<div class="main-container">
+  <div class="sidebar">
+    <h3>Categories</h3>
+    <div id="categoryList">
+      </div>
+  </div>
+
+  <div class="content">
+    <div id="errorMsg"></div>
+    <div id="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+
+    <div id="browseView">
+      <div class="section-title" id="pageTitle">Trending Now</div>
+      <div class="video-grid" id="results"></div>
+    </div>
+
+    <div id="playerSection">
+      <div class="main-player">
+        <div id="videoContainer"></div>
+        <div class="player-info" id="playerDetails"></div>
+      </div>
+      <div class="related-sidebar">
+        <h3>Suggested Videos</h3>
+        <div class="related-grid" id="relatedResults"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="errorMsg"></div>
-<div id="results"></div>
-<div id="videoPlayer"></div>
-
 <script>
-async function searchVideos() {
-  const query = document.getElementById('searchInput').value.trim();
-  const resultsDiv = document.getElementById('results');
-  const errorMsg = document.getElementById('errorMsg');
-  const videoPlayer = document.getElementById('videoPlayer');
+  // Configuration
+  const categories = [
+    "Trending", "Asian", "Ebony", "Latina", "Milf", "Teen", 
+    "Hentai", "Lesbian", "Japanese", "Big Ass", "Step Mom", 
+    "Amateur", "Verified", "Anal", "Blowjob"
+  ];
 
-  resultsDiv.innerHTML = '';
-  errorMsg.textContent = '';
-  videoPlayer.innerHTML = '';
-
-  if (!query) {
-    errorMsg.textContent = '❌ Please enter a search keyword.';
-    return;
-  }
-
-  try {
-    const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
-    const data = await response.json();
-
-    if (!data.success || !data.result || data.result.length === 0) {
-      throw new Error('No videos found for your query.');
-    }
-
-    data.result.forEach(video => {
-      const card = document.createElement('div');
-      card.className = 'video-card';
-      card.innerHTML = `
-        <img src="${video.thumbnail}" alt="${video.title}" class="thumbnail" />
-        <div class="video-info">
-          <div class="title" title="${video.title}">${video.title}</div>
-          <div class="details">Duration: ${video.duration} | Quality: ${video.quality}</div>
-        </div>
-      `;
-      // Pass both URL and title to allow download
-      card.onclick = () => fetchAndPlayVideo(video.url, video.title);
-      resultsDiv.appendChild(card);
+  // Initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    renderSidebar();
+    // Load default content (Trending)
+    handleCategoryClick('Trending');
+    
+    // Enter key search
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if(e.key === 'Enter') performSearch();
     });
-  } catch (error) {
-    errorMsg.textContent = '❌ ' + error.message;
-    console.error(error);
+  });
+
+  function renderSidebar() {
+    const list = document.getElementById('categoryList');
+    list.innerHTML = categories.map(cat => `
+      <div class="cat-item" onclick="handleCategoryClick('${cat}')">
+        <i class="fas fa-folder"></i> ${cat}
+      </div>
+    `).join('');
   }
-}
 
-async function fetchAndPlayVideo(videoUrl, videoTitle) {
-  const videoPlayer = document.getElementById('videoPlayer');
-  const errorMsg = document.getElementById('errorMsg');
-  errorMsg.textContent = '';
-  videoPlayer.innerHTML = '';
+  function toggleView(view) {
+    const browse = document.getElementById('browseView');
+    const player = document.getElementById('playerSection');
+    if (view === 'browse') {
+      browse.style.display = 'block';
+      player.style.display = 'none';
+      // Stop video if playing
+      document.getElementById('videoContainer').innerHTML = '';
+    } else {
+      browse.style.display = 'none';
+      player.style.display = 'flex';
+      window.scrollTo(0, 0);
+    }
+  }
 
-  try {
-    const response = await fetch(`/video?url=${encodeURIComponent(videoUrl)}`);
-    const data = await response.json();
+  async function performSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if(query) fetchVideos(query);
+  }
 
-    if (!data.success || !data.download_url) {
-      throw new Error('Failed to get download link.');
+  function handleCategoryClick(category) {
+    document.getElementById('searchInput').value = ''; // Clear custom search
+    fetchVideos(category);
+  }
+
+  async function fetchVideos(query, isRelated = false) {
+    if(!isRelated) {
+      toggleView('browse');
+      document.getElementById('pageTitle').innerText = query.toUpperCase();
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('errorMsg').textContent = '';
     }
 
-    const downloadLink = `/download?url=${encodeURIComponent(data.download_url)}&title=${encodeURIComponent(data.title)}`;
+    try {
+      // Use 'trending' keyword if query is trending, otherwise search normally
+      const searchTerm = query.toLowerCase() === 'trending' ? 'hot' : query;
+      const response = await fetch(`/search?q=${encodeURIComponent(searchTerm)}`);
+      const data = await response.json();
 
-    videoPlayer.innerHTML = `
-      <video controls autoplay>
-        <source src="${data.download_url}" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <p style="color: var(--highlight); margin-top: 0.5rem;">${data.title}</p>
-      <a href="${downloadLink}" class="download-btn">⬇ Download Video</a>
-    `;
+      document.getElementById('loading').style.display = 'none';
 
-    window.scrollTo({ top: videoPlayer.offsetTop, behavior: 'smooth' });
-  } catch (error) {
-    errorMsg.textContent = '❌ ' + error.message;
-    console.error(error);
+      if (!data.success || !data.result || data.result.length === 0) {
+        if(!isRelated) document.getElementById('errorMsg').textContent = 'No videos found.';
+        return;
+      }
+
+      if (isRelated) {
+        renderRelated(data.result);
+      } else {
+        renderGrid(data.result);
+      }
+
+    } catch (error) {
+      console.error(error);
+      if(!isRelated) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('errorMsg').textContent = 'Error fetching videos.';
+      }
+    }
   }
-}
+
+  function renderGrid(videos) {
+    const container = document.getElementById('results');
+    container.innerHTML = videos.map(video => `
+      <div class="video-card" onclick="playVideo('${video.url}', '${video.title.replace(/'/g, "\\'")}')">
+        <div class="thumb-wrapper">
+          <img src="${video.thumbnail}" loading="lazy" alt="thumb">
+          <span class="duration">${video.duration}</span>
+        </div>
+        <div class="info">
+          <div class="title" title="${video.title}">${video.title}</div>
+          <div class="meta">
+            <span>Views: N/A</span>
+            <span class="quality">${video.quality}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderRelated(videos) {
+    const container = document.getElementById('relatedResults');
+    // Show top 10 related
+    container.innerHTML = videos.slice(0, 10).map(video => `
+      <div class="related-card" onclick="playVideo('${video.url}', '${video.title.replace(/'/g, "\\'")}')">
+        <div class="related-thumb">
+          <img src="${video.thumbnail}" loading="lazy">
+        </div>
+        <div class="related-info">
+          <div class="related-title">${video.title}</div>
+          <div class="meta" style="font-size:0.7rem">${video.duration}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function playVideo(url, title) {
+    toggleView('player');
+    const container = document.getElementById('videoContainer');
+    const details = document.getElementById('playerDetails');
+    const relatedContainer = document.getElementById('relatedResults');
+
+    container.innerHTML = '<div id="loading"><i class="fas fa-spinner fa-spin"></i> Fetching Video Stream...</div>';
+    details.innerHTML = '';
+    relatedContainer.innerHTML = '<div style="padding:10px; color:#666;">Loading suggestions...</div>';
+
+    // 1. Trigger related search based on title keywords
+    // Extract first 2 significant words for better related matches
+    const keywords = title.split(' ').filter(w => w.length > 3).slice(0, 2).join(' ');
+    fetchVideos(keywords || 'hot', true); 
+
+    try {
+      const response = await fetch(`/video?url=${encodeURIComponent(url)}`);
+      const data = await response.json();
+
+      if (!data.success || !data.download_url) throw new Error("Video link not found");
+
+      const downloadLink = `/download?url=${encodeURIComponent(data.download_url)}&title=${encodeURIComponent(data.title)}`;
+
+      container.innerHTML = `
+        <video controls autoplay name="media">
+          <source src="${data.download_url}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      `;
+
+      details.innerHTML = `
+        <h1 class="player-title">${data.title}</h1>
+        <div class="meta" style="margin-bottom:10px;">
+          <span><i class="fas fa-eye"></i> ${data.views || 'Unknown'} views</span>
+        </div>
+        <a href="${downloadLink}" class="action-btn"><i class="fas fa-download"></i> Download Video</a>
+      `;
+
+    } catch (e) {
+      container.innerHTML = `<div id="errorMsg">Error loading video: ${e.message}</div>`;
+    }
+  }
 </script>
 
 </body>
 </html>
-
