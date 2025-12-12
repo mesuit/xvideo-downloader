@@ -1,20 +1,18 @@
-import express from "express";
-import fetch from "node-fetch";
-import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require("express");
+const fetch = require("node-fetch");
+const cors = require("cors");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// In CommonJS, __dirname is globally available, so we don't need the URL workaround
 app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 
-// Search X videos
+// 1. SEARCH ENDPOINT
 app.get("/search", async (req, res) => {
   const { q } = req.query;
   if (!q) return res.status(400).json({ error: "No query provided" });
@@ -24,12 +22,12 @@ app.get("/search", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    console.error(err);
+    console.error("Search Error:", err);
     res.status(500).json({ error: "Failed to fetch search results" });
   }
 });
 
-// Fetch video info
+// 2. VIDEO DETAILS ENDPOINT
 app.get("/video", async (req, res) => {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: "No video URL provided" });
@@ -39,18 +37,18 @@ app.get("/video", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    console.error(err);
+    console.error("Video Fetch Error:", err);
     res.status(500).json({ error: "Failed to fetch video info" });
   }
 });
 
-// **Download endpoint using external API**
+// 3. DOWNLOAD PROXY ENDPOINT
 app.get("/download", async (req, res) => {
   const { url, title } = req.query;
   if (!url || !title) return res.status(400).json({ error: "No URL or title provided" });
 
   try {
-    // Call the external API to get the direct download link
+    // Get direct stream link
     const apiResponse = await fetch(`https://apis-keith.vercel.app/download/porn?url=${encodeURIComponent(url)}`);
     const data = await apiResponse.json();
 
@@ -60,15 +58,18 @@ app.get("/download", async (req, res) => {
 
     const downloadUrl = data.result.url;
 
-    // Stream the video to the user
+    // Stream content to client
     const videoResponse = await fetch(downloadUrl);
-    if (!videoResponse.ok) throw new Error("Failed to fetch video from external URL");
+    if (!videoResponse.ok) throw new Error("Failed to fetch video stream");
 
-    res.setHeader("Content-Disposition", `attachment; filename="${title}.mp4"`);
+    // Sanitize title
+    const safeTitle = title.replace(/[^a-zA-Z0-9]/g, "_");
+
+    res.setHeader("Content-Disposition", `attachment; filename="${safeTitle}.mp4"`);
     res.setHeader("Content-Type", "video/mp4");
     videoResponse.body.pipe(res);
   } catch (err) {
-    console.error(err);
+    console.error("Download Error:", err);
     res.status(500).json({ error: "Failed to download video" });
   }
 });
