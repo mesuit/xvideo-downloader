@@ -49,7 +49,7 @@ app.get("/download", async (req, res) => {
 
   try {
     // Get direct stream link
-    const apiResponse = await fetch(`https://apis-keith.vercel.app/download/porn?url=${encodeURIComponent(url)}`);
+    const apiResponse = await fetch(`https://apiskeith.vercel.app/download/xvideos?url=${encodeURIComponent(url)}`);
     const data = await apiResponse.json();
 
     if (!data || !data.result || !data.result.url) {
