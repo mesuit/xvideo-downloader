@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Makamesco Studio - Premium X Video Downloader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Makamesco Studio - Premium X</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #ff9900; /* PornHub Orange style */
+      --primary: #ff9900;
       --dark-bg: #121212;
       --panel-bg: #1f1f1f;
       --text-main: #ffffff;
@@ -16,27 +16,26 @@
       --sidebar-width: 240px;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--dark-bg); color: var(--text-main); overflow-x: hidden; }
 
     /* --- Header --- */
     header {
       position: fixed; top: 0; left: 0; right: 0; height: 60px;
-      background: #000; display: flex; align-items: center; padding: 0 20px; z-index: 100;
+      background: #000; display: flex; align-items: center; padding: 0 20px; z-index: 1000;
       border-bottom: 2px solid var(--primary);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.8);
     }
-    .logo { font-size: 1.5rem; font-weight: bold; color: #fff; text-decoration: none; margin-right: 40px; }
-    .logo span { background: var(--primary); color: #000; padding: 2px 5px; border-radius: 4px; margin-left: 2px; }
+    .logo { font-size: 1.4rem; font-weight: 900; color: #fff; text-decoration: none; margin-right: 20px; letter-spacing: -1px; }
+    .logo span { color: var(--primary); }
     
     .search-bar { flex: 1; display: flex; max-width: 600px; margin: 0 auto; }
     .search-bar input {
-      width: 100%; padding: 10px 15px; border-radius: 2px 0 0 2px; border: none; outline: none; background: #333; color: #fff;
+      width: 100%; padding: 12px 15px; border-radius: 4px 0 0 4px; border: none; outline: none; background: #2a2a2a; color: #fff; font-size: 16px; /* Prevents zoom on mobile */
     }
     .search-bar button {
-      padding: 10px 20px; background: var(--primary); border: none; cursor: pointer; border-radius: 0 2px 2px 0; font-weight: bold;
+      padding: 10px 25px; background: var(--primary); border: none; cursor: pointer; border-radius: 0 4px 4px 0; font-weight: bold; color: #000;
     }
-    .search-bar button:hover { opacity: 0.9; }
 
     /* --- Layout --- */
     .main-container { display: flex; margin-top: 60px; min-height: calc(100vh - 60px); }
@@ -45,106 +44,181 @@
     .sidebar {
       width: var(--sidebar-width); background: #000; flex-shrink: 0; padding: 20px 10px;
       overflow-y: auto; height: calc(100vh - 60px); position: fixed; border-right: 1px solid #333;
+      z-index: 900;
     }
-    .sidebar h3 { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; margin-top: 0; padding-left: 10px; }
     .cat-item {
-      display: block; padding: 10px; color: var(--text-main); text-decoration: none; border-radius: 4px; transition: 0.2s; cursor: pointer;
+      display: flex; align-items: center; padding: 12px 15px; color: var(--text-muted); text-decoration: none; border-radius: 4px; transition: 0.2s; cursor: pointer; font-weight: 500;
     }
     .cat-item:hover, .cat-item.active { background: #333; color: var(--primary); }
-    .cat-item i { width: 25px; color: var(--primary); }
+    .cat-item i { width: 30px; color: var(--primary); }
 
     /* --- Content Area --- */
-    .content { margin-left: var(--sidebar-width); flex: 1; padding: 20px; }
+    .content { margin-left: var(--sidebar-width); flex: 1; padding: 20px; width: 100%; }
     
-    .section-title { font-size: 1.5rem; margin-bottom: 20px; border-left: 5px solid var(--primary); padding-left: 15px; }
+    .section-title { font-size: 1.5rem; margin-bottom: 20px; border-left: 5px solid var(--primary); padding-left: 15px; font-weight: 700; text-transform: uppercase; }
 
     /* --- Video Grid --- */
-    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-    .video-card { background: var(--panel-bg); border-radius: 4px; overflow: hidden; transition: transform 0.2s; cursor: pointer; }
-    .video-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .video-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+      gap: 20px; 
+    }
+    .video-card { background: var(--panel-bg); border-radius: 6px; overflow: hidden; transition: transform 0.2s; cursor: pointer; }
+    .video-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255, 153, 0, 0.2); }
     
-    .thumb-wrapper { position: relative; padding-top: 56.25%; /* 16:9 Aspect Ratio */ }
+    .thumb-wrapper { position: relative; padding-top: 56.25%; background: #000; }
     .thumb-wrapper img {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
     }
     .duration {
-      position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.8); color: #fff; padding: 2px 6px; font-size: 0.8rem; border-radius: 4px;
+      position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.85); color: #fff; padding: 3px 6px; font-size: 0.75rem; border-radius: 4px; font-weight: bold;
     }
 
-    .info { padding: 10px; }
-    .title { font-weight: 500; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 5px; }
-    .meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
-    .quality { background: var(--primary); color: #000; padding: 1px 4px; border-radius: 3px; font-weight: bold; font-size: 0.7rem; }
+    .info { padding: 12px; }
+    .title { font-weight: 500; font-size: 0.9rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px; height: 2.6em; }
+    .meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); }
+    .quality { background: var(--primary); color: #000; padding: 2px 6px; border-radius: 3px; font-weight: 800; font-size: 0.7rem; }
 
-    /* --- Player Section (Hidden by default) --- */
-    #playerSection { display: none; flex-direction: row; gap: 20px; }
-    .main-player { flex: 2; }
+    /* --- Player Section --- */
+    #playerSection { display: none; flex-direction: row; gap: 25px; }
+    .main-player { flex: 2; width: 100%; }
     .related-sidebar { flex: 1; max-width: 400px; }
     
-    video { width: 100%; background: #000; border-radius: 4px; border: 1px solid #333; }
-    .player-info { margin-top: 15px; background: var(--panel-bg); padding: 15px; border-radius: 4px; }
-    .player-title { font-size: 1.4rem; color: var(--primary); margin: 0 0 10px 0; }
-    .action-btn {
-      display: inline-block; background: var(--primary); color: #000; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 4px; margin-top: 10px;
+    /* THE FIX: Force aspect ratio so intro is never blank/hidden */
+    .video-container { 
+      position: relative; 
+      width: 100%; 
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000; 
+      border-radius: 6px; 
+      overflow: hidden; 
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
-    .action-btn:hover { opacity: 0.9; }
+    
+    video { 
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+      object-fit: contain; 
+    }
+    
+    .player-info { margin-top: 15px; background: var(--panel-bg); padding: 20px; border-radius: 6px; }
+    .player-title { font-size: 1.3rem; color: var(--primary); margin: 0 0 15px 0; line-height: 1.4; }
+    .action-btn {
+      display: flex; align-items: center; justify-content: center; width: 100%;
+      background: var(--primary); color: #000; padding: 15px; 
+      text-decoration: none; font-weight: 900; border-radius: 4px; margin-top: 15px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
 
-    /* --- Compact Grid for Related --- */
-    .related-grid { display: flex; flex-direction: column; gap: 10px; }
-    .related-card { display: flex; gap: 10px; background: var(--panel-bg); padding: 5px; cursor: pointer; border-radius: 4px; }
+    /* --- Related Videos --- */
+    .related-grid { display: flex; flex-direction: column; gap: 12px; }
+    .related-card { display: flex; gap: 12px; background: var(--panel-bg); padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
     .related-card:hover { background: #333; }
-    .related-thumb { width: 120px; height: 68px; flex-shrink: 0; position: relative; }
+    .related-thumb { width: 140px; height: 80px; flex-shrink: 0; position: relative; }
     .related-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
     .related-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-    .related-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; max-height: 2.6em; overflow: hidden; }
 
-    /* --- Loading/Error --- */
-    #loading { display: none; text-align: center; padding: 40px; color: var(--primary); font-size: 1.2rem; }
-    #errorMsg { color: #ff4444; text-align: center; padding: 20px; }
+    /* --- LOADING SCREEN ANIMATION (FIXED) --- */
+    .premium-loader {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle, #222 0%, #000 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 50;
+    }
+    
+    .loader-text {
+      font-size: 2.5rem; font-weight: 900; color: #fff;
+      text-transform: uppercase; letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(0,0,0,0.8);
+      animation: pulseText 2s infinite;
+      text-align: center;
+    }
+    .loader-text span { color: var(--primary); font-size: 3rem; margin: 0 10px; display:inline-block; }
+    
+    .loader-bar-bg {
+      width: 200px; height: 4px; background: #333; margin-top: 20px; border-radius: 2px; overflow: hidden;
+    }
+    .loader-bar-fill {
+      width: 0%; height: 100%; background: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+      animation: fillBar 3s ease-in-out forwards;
+    }
 
-    /* --- Mobile Responsive --- */
+    @keyframes pulseText {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    @keyframes fillBar {
+      0% { width: 0%; }
+      50% { width: 60%; }
+      100% { width: 100%; }
+    }
+
+    /* --- Mobile Responsive Fixes --- */
     @media (max-width: 768px) {
-      .sidebar { display: none; } /* Add toggle logic if needed, hiding for simplicity */
-      .content { margin-left: 0; }
-      #playerSection { flex-direction: column; }
-      .related-sidebar { max-width: 100%; }
-      .logo span { display: none; } /* Compact logo */
+      .sidebar { display: none; }
+      .content { margin-left: 0; padding: 10px; }
+      
+      header { padding: 0 15px; }
+      .logo { margin-right: 0; font-size: 1.2rem; display: none; } /* Hide logo on search focus? No, keep clean */
+      .search-bar { width: 100%; max-width: 100%; }
+      
+      /* Better Mobile Grid: 2 Items per row */
+      .video-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px; 
+      }
+      
+      .video-card { border-radius: 4px; }
+      .thumb-wrapper { padding-top: 60%; } /* Slightly taller for mobile thumbs */
+      .info { padding: 8px; }
+      .title { font-size: 0.8rem; margin-bottom: 4px; height: 2.4em; }
+      .meta { font-size: 0.65rem; }
+      
+      /* Player Mobile */
+      #playerSection { flex-direction: column; gap: 15px; }
+      .video-container { border-radius: 0; margin: -10px -10px 0 -10px; width: calc(100% + 20px); }
+      .player-title { font-size: 1.1rem; }
+      .loader-text { font-size: 1.5rem; }
+      .loader-text span { font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <a href="#" class="logo" onclick="location.reload()">Makamesco<span>Studio</span></a>
+  <a href="#" class="logo" onclick="location.reload()">Makamesco<span>X</span>Studio</a>
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search videos...">
+    <input type="text" id="searchInput" placeholder="Search...">
     <button onclick="performSearch()"><i class="fas fa-search"></i></button>
   </div>
 </header>
 
 <div class="main-container">
   <div class="sidebar">
-    <h3>Categories</h3>
-    <div id="categoryList">
-      </div>
+    <div id="categoryList"></div>
   </div>
 
   <div class="content">
-    <div id="errorMsg"></div>
-    <div id="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
-
+    <div id="errorMsg" style="color:red; text-align:center; padding:10px;"></div>
+    
     <div id="browseView">
       <div class="section-title" id="pageTitle">Trending Now</div>
+      <div id="loading" style="display:none; text-align:center; padding:20px; color:#aaa;">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+      </div>
       <div class="video-grid" id="results"></div>
     </div>
 
     <div id="playerSection">
       <div class="main-player">
-        <div id="videoContainer"></div>
+        <div id="videoContainer" class="video-container">
+          </div>
         <div class="player-info" id="playerDetails"></div>
       </div>
+      
       <div class="related-sidebar">
-        <h3>Suggested Videos</h3>
+        <h3 style="margin-top:0; color:#aaa; font-size:0.9rem; text-transform:uppercase;">Up Next</h3>
         <div class="related-grid" id="relatedResults"></div>
       </div>
     </div>
@@ -152,20 +226,16 @@
 </div>
 
 <script>
-  // Configuration
   const categories = [
     "Trending", "Asian", "Ebony", "Latina", "Milf", "Teen", 
     "Hentai", "Lesbian", "Japanese", "Big Ass", "Step Mom", 
     "Amateur", "Verified", "Anal", "Blowjob"
   ];
 
-  // Initialization
   document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
-    // Load default content (Trending)
     handleCategoryClick('Trending');
     
-    // Enter key search
     document.getElementById('searchInput').addEventListener('keyup', (e) => {
       if(e.key === 'Enter') performSearch();
     });
@@ -183,11 +253,15 @@
   function toggleView(view) {
     const browse = document.getElementById('browseView');
     const player = document.getElementById('playerSection');
+    const errorMsg = document.getElementById('errorMsg');
+    
+    errorMsg.innerText = ""; 
+
     if (view === 'browse') {
       browse.style.display = 'block';
       player.style.display = 'none';
-      // Stop video if playing
-      document.getElementById('videoContainer').innerHTML = '';
+      // Stop video logic
+      document.getElementById('videoContainer').innerHTML = ''; 
     } else {
       browse.style.display = 'none';
       player.style.display = 'flex';
@@ -201,7 +275,8 @@
   }
 
   function handleCategoryClick(category) {
-    document.getElementById('searchInput').value = ''; // Clear custom search
+    // Mobile: Hide sidebar if we had toggle logic (simplified here)
+    document.getElementById('searchInput').value = ''; 
     fetchVideos(category);
   }
 
@@ -211,11 +286,9 @@
       document.getElementById('pageTitle').innerText = query.toUpperCase();
       document.getElementById('loading').style.display = 'block';
       document.getElementById('results').innerHTML = '';
-      document.getElementById('errorMsg').textContent = '';
     }
 
     try {
-      // Use 'trending' keyword if query is trending, otherwise search normally
       const searchTerm = query.toLowerCase() === 'trending' ? 'hot' : query;
       const response = await fetch(`/search?q=${encodeURIComponent(searchTerm)}`);
       const data = await response.json();
@@ -237,7 +310,7 @@
       console.error(error);
       if(!isRelated) {
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('errorMsg').textContent = 'Error fetching videos.';
+        document.getElementById('errorMsg').textContent = 'Network error.';
       }
     }
   }
@@ -251,10 +324,10 @@
           <span class="duration">${video.duration}</span>
         </div>
         <div class="info">
-          <div class="title" title="${video.title}">${video.title}</div>
+          <div class="title">${video.title}</div>
           <div class="meta">
-            <span>Views: N/A</span>
-            <span class="quality">${video.quality}</span>
+            <span>${video.views || 'Free'}</span>
+            <span class="quality">${video.quality || 'HD'}</span>
           </div>
         </div>
       </div>
@@ -263,14 +336,13 @@
 
   function renderRelated(videos) {
     const container = document.getElementById('relatedResults');
-    // Show top 10 related
     container.innerHTML = videos.slice(0, 10).map(video => `
       <div class="related-card" onclick="playVideo('${video.url}', '${video.title.replace(/'/g, "\\'")}')">
         <div class="related-thumb">
           <img src="${video.thumbnail}" loading="lazy">
         </div>
         <div class="related-info">
-          <div class="related-title">${video.title}</div>
+          <div class="title" style="margin-bottom:0; font-size:0.8rem">${video.title}</div>
           <div class="meta" style="font-size:0.7rem">${video.duration}</div>
         </div>
       </div>
@@ -283,40 +355,61 @@
     const details = document.getElementById('playerDetails');
     const relatedContainer = document.getElementById('relatedResults');
 
-    container.innerHTML = '<div id="loading"><i class="fas fa-spinner fa-spin"></i> Fetching Video Stream...</div>';
+    // 1. SHOW PREMIUM ANIMATED LOADER
+    // The .video-container CSS forces a height, so this will show nicely
+    container.innerHTML = `
+      <div class="premium-loader">
+        <div class="loader-text">MAKAMESCO<span>X</span>STUDIO</div>
+        <div class="loader-bar-bg">
+          <div class="loader-bar-fill"></div>
+        </div>
+      </div>
+    `;
+    
     details.innerHTML = '';
-    relatedContainer.innerHTML = '<div style="padding:10px; color:#666;">Loading suggestions...</div>';
+    relatedContainer.innerHTML = '<div style="padding:10px; color:#666;">Loading...</div>';
 
-    // 1. Trigger related search based on title keywords
-    // Extract first 2 significant words for better related matches
     const keywords = title.split(' ').filter(w => w.length > 3).slice(0, 2).join(' ');
     fetchVideos(keywords || 'hot', true); 
 
     try {
-      const response = await fetch(`/video?url=${encodeURIComponent(url)}`);
+      // 2. FORCE 3 SECOND WAIT FOR BRANDING EFFECT
+      const [response, timer] = await Promise.all([
+         fetch(`/video?url=${encodeURIComponent(url)}`),
+         new Promise(resolve => setTimeout(resolve, 3000)) 
+      ]);
+
       const data = await response.json();
 
-      if (!data.success || !data.download_url) throw new Error("Video link not found");
+      if (!data.success || !data.download_url) {
+        throw new Error("Could not extract video link.");
+      }
 
       const downloadLink = `/download?url=${encodeURIComponent(data.download_url)}&title=${encodeURIComponent(data.title)}`;
 
+      // 3. SHOW VIDEO
       container.innerHTML = `
         <video controls autoplay name="media">
-          <source src="${data.download_url}" type="video/mp4">
+          <source src="${downloadLink}" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       `;
 
       details.innerHTML = `
         <h1 class="player-title">${data.title}</h1>
-        <div class="meta" style="margin-bottom:10px;">
-          <span><i class="fas fa-eye"></i> ${data.views || 'Unknown'} views</span>
+        <div class="meta" style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:15px;">
+           <span class="quality">HD</span>
+           <span><i class="fas fa-eye"></i> ${data.views || 'Unknown'}</span>
         </div>
-        <a href="${downloadLink}" class="action-btn"><i class="fas fa-download"></i> Download Video</a>
+        <a href="${downloadLink}" class="action-btn"><i class="fas fa-download" style="margin-right:10px"></i> Download Video</a>
       `;
 
     } catch (e) {
-      container.innerHTML = `<div id="errorMsg">Error loading video: ${e.message}</div>`;
+      container.innerHTML = `
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; background:#111;">
+            <i class="fas fa-exclamation-triangle" style="color:red; font-size:2rem; margin-bottom:10px;"></i>
+            <div style="color:#fff;">${e.message}</div>
+        </div>`;
     }
   }
 </script>
